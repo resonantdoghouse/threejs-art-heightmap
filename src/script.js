@@ -15,21 +15,26 @@ if (urlParams.has('query')) {
   query = urlParams.get('query');
 }
 
-async function convertBW(id) {
+/*
+ * Convert image to black and white grayscale
+ */
+function convertBW(id) {
   const imgObj = document.createElement('img');
   imgObj.src = `https://www.artic.edu/iiif/2/${id}/full/843,/0/default.jpg`;
   imgObj.crossOrigin = '';
-
-  imgObj.onload = () => {
-    imgObj.width = imgObj.width;
-    imgObj.height = imgObj.height;
-
-    const grayImage = gray(imgObj);
-    // console.log('grayImage', grayImage);
-    return new Promise((resolve, reject) => {
-      resolve(canvas.toDataURL());
-    });
-  };
+  return new Promise((resolve, reject) => {
+    let isError = false;
+    let grayImage = '';
+    imgObj.onload = () => {
+      imgObj.width = imgObj.width;
+      imgObj.height = imgObj.height;
+      grayImage = gray(imgObj);
+      resolve(grayImage);
+    };
+    if (isError) {
+      reject('an error occurred converting gray image');
+    }
+  });
 
   function gray(imgObj) {
     let canvas = document.createElement('canvas');
@@ -41,7 +46,7 @@ async function convertBW(id) {
     canvas.height = imgH;
 
     canvasContext.drawImage(imgObj, 0, 0);
-    let imgPixels = canvasContext.getImageData(0, 0, imgW, imgH);
+    const imgPixels = canvasContext.getImageData(0, 0, imgW, imgH);
 
     for (let y = 0; y < imgPixels.height; y++) {
       for (let x = 0; x < imgPixels.width; x++) {
@@ -65,12 +70,6 @@ async function convertBW(id) {
     );
     return canvas.toDataURL();
   }
-
-  // console.log('imgObj', imgObj);
-  // console.log(imgObj.src);
-
-  // return canvas.toDataURL();
-  // return imgObj.src;
 }
 
 /**
@@ -92,7 +91,7 @@ scene.fog = new THREE.Fog(color, near, far);
 scene.background = new THREE.Color(color);
 
 const imageTextureSettings = {
-  displacementScaleSize: 0.5,
+  heightmapSize: -0.75,
   metalness: 0,
   roughness: 1,
 };
@@ -102,12 +101,6 @@ const imageTextureSettings = {
  */
 const gltfLoader = new GLTFLoader();
 
-// const modelPosition = {
-//   x: 0,
-//   y: 1,
-//   z: 0,
-// };
-
 const directionalLightPosition = {
   x: 0,
   y: 0,
@@ -116,33 +109,31 @@ const directionalLightPosition = {
 
 let model = null;
 
+/*
+ * Dat GUI controls, folders
+ */
 function enableDatGUI() {
   // Dat GUI controls
   const imageTextureFolder = gui.addFolder('Height Map');
-
   imageTextureFolder
-    .add(imageTextureSettings, 'displacementScaleSize', -2, 2)
+    .add(imageTextureSettings, 'heightmapSize', -2, 2)
     .onChange((value) => {
-      // console.log(value);
-      imageTextureSettings.displacementScaleSize = value;
+      imageTextureSettings.heightmapSize = value;
       imageMaterial.displacementScale = value;
     });
-
   imageTextureFolder
     .add(imageTextureSettings, 'metalness', 0, 1)
     .onChange((value) => {
       imageTextureSettings.metalness = value;
       imageMaterial.metalness = value;
     });
-
   imageTextureFolder
     .add(imageTextureSettings, 'roughness', 0, 1)
     .onChange((value) => {
       imageTextureSettings.roughness = value;
       imageMaterial.roughness = value;
     });
-
-  imageTextureFolder.open();
+  // imageTextureFolder.open();
 }
 
 /*
@@ -237,7 +228,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(0, 1, 10);
+camera.position.set(0, 0, 9);
 camera.add(pointLight);
 scene.add(camera);
 
@@ -256,13 +247,13 @@ function loadImage(id) {
   const loader = new THREE.TextureLoader();
 
   const heightMapImage = convertBW(id);
-  heightMapImage.then((data) => {
-    console.log('heightMapImage data', data);
-    addHeightMapMesh(data);
-  });
+  heightMapImage
+    .then((data) => {
+      addHeightMapMesh(data);
+    })
+    .catch((error) => console.log(error));
 
   function addHeightMapMesh(data) {
-    console.log(data);
     const heightMapTexture = loader.load(data);
 
     imageMaterial = new THREE.MeshStandardMaterial({
@@ -270,7 +261,7 @@ function loadImage(id) {
         `https://www.artic.edu/iiif/2/${id}/full/843,/0/default.jpg`
       ),
       displacementMap: heightMapTexture,
-      displacementScale: imageTextureSettings.displacementScaleSize,
+      displacementScale: imageTextureSettings.heightmapSize,
       metalness: imageTextureSettings.metalness,
       roughness: imageTextureSettings.roughness,
     });
@@ -284,8 +275,6 @@ function loadImage(id) {
     imageMaterial.name = 'imageMaterial';
     imageMaterial.needsUpdate = true;
     scene.add(imageMesh);
-    // console.log(imageMesh);
-    // console.log('scene', scene.children[4]);
   }
 }
 
@@ -344,8 +333,6 @@ function loadArt(id) {
   fetch(`https://api.artic.edu/api/v1/artworks/${id}`)
     .then((response) => response.json())
     .then((response) => {
-      // console.log('response', response);
-      // appendImg(response.data);
       loadImage(response.data.image_id);
     });
 }
