@@ -4,10 +4,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as dat from 'dat.gui';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-// import InputControl from './InputControl';
-// const inputKeys = new InputControl();
-// inputKeys.init();
-
 const urlParams = new URLSearchParams(window.location.search);
 let query = '';
 
@@ -241,7 +237,7 @@ controls.minAzimuthAngle = -Math.PI / 2 + 0.5; // radians
 controls.maxAzimuthAngle = Math.PI / 2 - 0.5; // radians
 controls.target.set(0, 0.75, 0);
 controls.enableDamping = true;
-
+controls.listenToKeyEvents(window);
 let imageMaterial;
 
 function loadImage(id) {
