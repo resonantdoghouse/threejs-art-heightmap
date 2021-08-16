@@ -94,6 +94,7 @@ const imageTextureSettings = {
   heightmapSize: -0.75,
   metalness: 0,
   roughness: 1,
+  normalScale: new THREE.Vector2(0, 0),
 };
 
 /**
@@ -255,15 +256,18 @@ function loadImage(id) {
 
   function addHeightMapMesh(data) {
     const heightMapTexture = loader.load(data);
-
+    const imageTexture = loader.load(
+      `https://www.artic.edu/iiif/2/${id}/full/843,/0/default.jpg`
+    );
     imageMaterial = new THREE.MeshStandardMaterial({
-      map: loader.load(
-        `https://www.artic.edu/iiif/2/${id}/full/843,/0/default.jpg`
-      ),
+      map: imageTexture,
       displacementMap: heightMapTexture,
       displacementScale: imageTextureSettings.heightmapSize,
       metalness: imageTextureSettings.metalness,
       roughness: imageTextureSettings.roughness,
+      // normalMap: heightMapTexture,
+      // normalScale: new THREE.Vector2(0, 0),
+      metalnessMap: imageTexture,
     });
 
     const imageMesh = new THREE.Mesh(
