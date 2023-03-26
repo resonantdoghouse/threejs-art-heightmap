@@ -6,15 +6,18 @@
     <title>Three.js Art HeightMap</title>
   </head>
   <body>
-    <form id="searchForm" class="search-form">
-      <input
-        class="search-form__query"
-        type="text"
-        name="query"
-        placeholder="search artist e.g. van gogh"
-      />
-      <button type="submit">Search</button>
-    </form>
+    <header class="header">
+      <form id="searchForm" class="search-form">
+        <input
+          class="search-form__query"
+          type="text"
+          name="query"
+          placeholder="search artist e.g. van gogh"
+        />
+        <button type="submit">Search</button>
+      </form>
+      <p class="header__info">Move the camera using your mouse or track-pad. Click, hold and drag to rotate. <br>You can use the tool top right to change height-map values. 💡</p>
+    </header>
     <canvas class="webgl"></canvas>
   </body>
 </html>
