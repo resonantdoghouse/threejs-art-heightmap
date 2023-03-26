@@ -23,6 +23,10 @@ body {
   padding: 0.625rem;
 }
 
+.search-form__query {
+  min-width: 200px;
+}
+
 .search-form input,
 .search-form button {
   padding: 0.312rem;
