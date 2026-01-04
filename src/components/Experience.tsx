@@ -9,16 +9,10 @@ interface ExperienceProps {
     imageId: string | number
 }
 
-// Constants for constraints
-
-// Constants for constraints
-const MIN_AZIMUTH_ANGLE = -Math.PI / 2 + 0.5
-const MAX_AZIMUTH_ANGLE = Math.PI / 2 - 0.5
-
 export const Experience: React.FC<ExperienceProps> = ({ imageId }) => {
     const light = useRef<THREE.DirectionalLight>(null!)
     const controlsRef = useRef<any>(null)
-    const directionRef = useRef(1) // 1 for right, -1 for left
+
 
     useControls('Help', {
         'Rotate': { value: 'Left Click + Drag', editable: false },
@@ -54,10 +48,6 @@ export const Experience: React.FC<ExperienceProps> = ({ imageId }) => {
         <>
             <OrbitControls 
                 ref={controlsRef}
-                minPolarAngle={0.1}
-                // maxPolarAngle={Math.PI / 2 + 1.5}
-                // minAzimuthAngle={MIN_AZIMUTH_ANGLE}
-                // maxAzimuthAngle={MAX_AZIMUTH_ANGLE}
                 enableDamping={enableDamping}
                 autoRotate={autoRotate}
                 autoRotateSpeed={autoRotateSpeed} 
