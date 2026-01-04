@@ -11,6 +11,17 @@ body {
 }
 
 .webgl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
 }
 
 .search-form {
@@ -26,15 +37,19 @@ body {
   padding: 0.312rem;
 }
 
-
 .header {
-  position: fixed; 
+  position: fixed;
   align-items: center;
   top: 0;
   width: 100%;
   display: flex;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 .header__info {
-  font-size: 0.75rem;
+  font-size: 1rem;
+  margin-left: 1rem;
+  color: #333;
 }
