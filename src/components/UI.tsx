@@ -15,7 +15,7 @@ export const UI: React.FC<UIProps> = ({ onSearch }) => {
             return
         }
         try {
-            const response = await fetch(`https://api.artic.edu/api/v1/agents/search?q=${searchTerm}&limit=5`)
+            const response = await fetch(`https://api.artic.edu/api/v1/agents/search?q=${encodeURIComponent(searchTerm)}&limit=5`)
             const data = await response.json()
             if (data.data) {
                 setSuggestions(data.data.map((agent: any) => agent.title))

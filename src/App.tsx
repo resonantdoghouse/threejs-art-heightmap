@@ -29,7 +29,7 @@ export const App = () => {
                 },
             }
             const response = await fetch(
-                `https://api.artic.edu/api/v1/artworks/search?params=${JSON.stringify(queryObj)}`
+                `https://api.artic.edu/api/v1/artworks/search?params=${encodeURIComponent(JSON.stringify(queryObj))}`
             )
             const data = await response.json()
             if (data.data && data.data.length > 0) {
