@@ -47,9 +47,26 @@ export const App = () => {
         handleSearch('monet')
     }, [])
 
+    const [isLoading, setIsLoading] = useState(false)
+
+    // Modification to wrap async calls with loading state
+    const handleSearchWrapper = async (query: string) => {
+        setIsLoading(true)
+        await handleSearch(query)
+        setIsLoading(false)
+    }
+
     return (
         <>
-            <UI onSearch={handleSearch} />
+            <UI onSearch={handleSearchWrapper} />
+            {isLoading && (
+                <div className="loader-overlay">
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                        <div className="loader" style={{ width: '40px', height: '40px' }}></div>
+                        <span>Loading Art...</span>
+                    </div>
+                </div>
+            )}
             <Canvas
                 className="webgl"
                 shadows

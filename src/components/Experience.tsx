@@ -23,7 +23,7 @@ export const Experience: React.FC<ExperienceProps> = ({ imageId }) => {
 
     const { lightPosition, lightIntensity, ambientIntensity, debugLights, followCamera } = useControls('Lighting', {
         lightPosition: { value: [0, 0, 10], step: 1 },
-        lightIntensity: { value: 2.5, min: 0, max: 20 },
+        lightIntensity: { value: 1, min: 0, max: 20 },
         ambientIntensity: { value: 1, min: 0, max: 5 },
         followCamera: true,
         debugLights: false

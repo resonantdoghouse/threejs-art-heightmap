@@ -8,12 +8,27 @@ interface UIProps {
 export const UI: React.FC<UIProps> = ({ onSearch }) => {
     const [query, setQuery] = useState('')
     const [suggestions, setSuggestions] = useState<string[]>([])
+    const [isLoading, setIsLoading] = useState(false)
+
+    // Debounce search for suggestions
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            if (query.trim()) {
+                fetchSuggestions(query)
+            } else {
+                setSuggestions([])
+            }
+        }, 500)
+
+        return () => clearTimeout(timer)
+    }, [query])
 
     const fetchSuggestions = async (searchTerm: string) => {
         if (searchTerm.length < 3) {
             setSuggestions([])
             return
         }
+        setIsLoading(true)
         try {
             const response = await fetch(`https://api.artic.edu/api/v1/agents/search?q=${encodeURIComponent(searchTerm)}&limit=5`)
             const data = await response.json()
@@ -22,14 +37,13 @@ export const UI: React.FC<UIProps> = ({ onSearch }) => {
             }
         } catch (error) {
             console.error('Error fetching suggestions:', error)
+        } finally {
+            setIsLoading(false)
         }
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value
-        setQuery(val)
-        // Simple debounce could be added here, but for now direct call on input is acceptable for low traffic
-        fetchSuggestions(val)
+        setQuery(e.target.value)
     }
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -54,6 +68,8 @@ export const UI: React.FC<UIProps> = ({ onSearch }) => {
                     list="artist-suggestions"
                     autoComplete="off"
                 />
+                {isLoading && <div className="loader" style={{ position: 'absolute', right: '90px', top: '10px' }}></div>}
+                
                 <datalist id="artist-suggestions">
                     {suggestions.map((s, i) => (
                         <option key={i} value={s} />
