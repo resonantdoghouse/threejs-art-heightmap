@@ -2,7 +2,7 @@ import { OrbitControls, useHelper, TransformControls, Environment, ContactShadow
 import { ArtMesh } from './ArtMesh'
 import { useRef } from 'react'
 import * as THREE from 'three' // For DirectionalLightHelper
-import { useControls } from 'leva'
+import { useControls, button } from 'leva'
 import { useFrame } from '@react-three/fiber'
 
 interface ExperienceProps {
@@ -32,7 +32,10 @@ export const Experience: React.FC<ExperienceProps> = ({ imageId }) => {
     const { autoRotate, autoRotateSpeed, enableDamping } = useControls('Orbit Controls', {
         autoRotate: false,
         autoRotateSpeed: { value: 2, min: 0.1, max: 10 },
-        enableDamping: true
+        enableDamping: true,
+        'Reset View': button(() => {
+            controlsRef.current?.reset()
+        })
     })
 
     useHelper(debugLights && light, THREE.DirectionalLightHelper, 1)
