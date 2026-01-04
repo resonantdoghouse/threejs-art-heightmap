@@ -11,25 +11,27 @@ interface ArtMeshProps {
 export const ArtMesh: React.FC<ArtMeshProps> = ({ imageId }) => {
     const [heightMapData, setHeightMapData] = useState<string | null>(null)
     const { heightmapSize, smoothing, contrast, invert } = useControls('Height Map', {
-        heightmapSize: { value: -0.75, min: -2, max: 2 },
-        smoothing: { value: 0, min: 0, max: 10, step: 0.1 },
-        contrast: { value: 0, min: -100, max: 100, step: 1 },
+        heightmapSize: { value: -0.75, min: -5, max: 5 },
+        smoothing: { value: 0, min: -50, max: 50, step: 0.1 },
+        contrast: { value: 0, min: -200, max: 200, step: 1 },
         invert: { value: false }
+    })
+
+    const { rotation } = useControls('Transform', {
+        rotation: { value: [0, 0, 0], step: 0.01 }
     })
 
     const artUrl = `https://www.artic.edu/iiif/2/${imageId}/full/843,/0/default.jpg`
     const texture = useLoader(THREE.TextureLoader, artUrl)
 
-
     const [displacementMap, setDisplacementMap] = useState<THREE.Texture | null>(null)
+
 
     useEffect(() => {
         if (!heightMapData) return
         
-        console.log('Loading displacement map texture...')
         const loader = new THREE.TextureLoader()
         const dispTexture = loader.load(heightMapData, (t) => {
-            console.log('Displacement map texture loaded.', t)
             t.needsUpdate = true
             setDisplacementMap(t)
         })
@@ -39,24 +41,19 @@ export const ArtMesh: React.FC<ArtMeshProps> = ({ imageId }) => {
         }
     }, [heightMapData])
 
-    // Effect to handle manual material updates if needed, though R3F usually handles this.
-    // We add a key to the material to force re-construction if strictly needed, 
-    // but better to trust the prop update with the new texture reference.
-
     useEffect(() => {
-        console.log('Generating heightmap with options:', { smoothing, contrast, invert })
         generateHeightmap(imageId, { smoothing, contrast, invert })
             .then((data) => {
-                console.log('Heightmap data generated (length):', data.length)
                 setHeightMapData(data)
             })
             .catch((err) => console.error('Heightmap generation error:', err))
     }, [imageId, smoothing, contrast, invert])
 
     return (
-        <mesh position-y={0} rotation-x={-Math.PI / 2 + Math.PI / 2} > 
+        <mesh position-y={0} rotation={[rotation[0], rotation[1], rotation[2]]} > 
             <planeGeometry args={[10, 10, 256, 256]} />
             <meshStandardMaterial
+                key={displacementMap?.uuid || 'no-disp'}
                 map={texture}
                 displacementMap={displacementMap || undefined}
                 displacementScale={heightmapSize}

@@ -3,37 +3,72 @@ import { ArtMesh } from './ArtMesh'
 import { useRef } from 'react'
 import * as THREE from 'three' // For DirectionalLightHelper
 import { useControls } from 'leva'
+import { useFrame } from '@react-three/fiber'
 
 interface ExperienceProps {
     imageId: string | number
 }
 
+// Constants for constraints
+
+// Constants for constraints
+const MIN_AZIMUTH_ANGLE = -Math.PI / 2 + 0.5
+const MAX_AZIMUTH_ANGLE = Math.PI / 2 - 0.5
+
 export const Experience: React.FC<ExperienceProps> = ({ imageId }) => {
     const light = useRef<THREE.DirectionalLight>(null!)
-    const { lightPosition, lightIntensity, debugLights } = useControls('Lighting', {
-        lightPosition: { value: [3, 3, 10], step: 1 },
-        lightIntensity: { value: 1, min: 0, max: 10 },
+    const controlsRef = useRef<any>(null)
+    const directionRef = useRef(1) // 1 for right, -1 for left
+
+    useControls('Help', {
+        'Rotate': { value: 'Left Click + Drag', editable: false },
+        'Zoom': { value: 'Scroll / Pinch', editable: false },
+        'Pan': { value: 'Right Click + Drag', editable: false },
+        'Heightmap': { value: 'Use "Height Map" panel', editable: false }
+    }, { collapsed: true })
+
+    const { lightPosition, lightIntensity, ambientIntensity, debugLights, followCamera } = useControls('Lighting', {
+        lightPosition: { value: [0, 0, 10], step: 1 },
+        lightIntensity: { value: 2.5, min: 0, max: 20 },
+        ambientIntensity: { value: 1, min: 0, max: 5 },
+        followCamera: true,
         debugLights: false
+    })
+
+    const { autoRotate, autoRotateSpeed, enableDamping } = useControls('Orbit Controls', {
+        autoRotate: false,
+        autoRotateSpeed: { value: 2, min: 0.1, max: 10 },
+        enableDamping: true
     })
 
     useHelper(debugLights && light, THREE.DirectionalLightHelper, 1)
 
+    // Update light position to follow camera if enabled
+    useFrame(({ camera }) => {
+        if (followCamera && light.current) {
+            light.current.position.copy(camera.position)
+        }
+    })
+
     return (
         <>
             <OrbitControls 
+                ref={controlsRef}
                 minPolarAngle={0.1}
-                maxPolarAngle={Math.PI / 2 + 1.5}
-                minAzimuthAngle={-Math.PI / 2 + 0.5}
-                maxAzimuthAngle={Math.PI / 2 - 0.5}
-                enableDamping={true}
+                // maxPolarAngle={Math.PI / 2 + 1.5}
+                // minAzimuthAngle={MIN_AZIMUTH_ANGLE}
+                // maxAzimuthAngle={MAX_AZIMUTH_ANGLE}
+                enableDamping={enableDamping}
+                autoRotate={autoRotate}
+                autoRotateSpeed={autoRotateSpeed} 
                 makeDefault={!debugLights} // Disable orbit controls when debugging lights to avoid conflict
             />
 
-            <ambientLight intensity={0.5} />
-            <pointLight position={[0, 10, 0]} intensity={0.5} />
+            <ambientLight intensity={ambientIntensity} />
+            <pointLight position={[0, 10, 0]} intensity={1.5} />
             <directionalLight 
                 ref={light}
-                position={lightPosition} 
+                position={followCamera ? undefined : lightPosition} 
                 intensity={lightIntensity} 
             />
             {debugLights && <TransformControls object={light} />}
