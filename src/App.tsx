@@ -61,9 +61,9 @@ export const App = () => {
             <UI onSearch={handleSearchWrapper} />
             {isLoading && (
                 <div className="loader-overlay">
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                        <div className="loader" style={{ width: '40px', height: '40px' }}></div>
-                        <span>Loading Art...</span>
+                    <div className="loader-container">
+                        <div className="loader"></div>
+                        <span className="loader-text">Loading Art...</span>
                     </div>
                 </div>
             )}
@@ -77,8 +77,8 @@ export const App = () => {
                     far: 100
                 }}
             >
-                <color attach="background" args={['skyblue']} />
-                <fog attach="fog" args={['skyblue', 10, 100]} />
+                <color attach="background" args={['#181c20']} />
+                <fog attach="fog" args={['#181c20', 10, 50]} />
                 {imageId && <Experience imageId={imageId} />}
             </Canvas>
         </>

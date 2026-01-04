@@ -12,7 +12,7 @@ export const ArtMesh: React.FC<ArtMeshProps> = ({ imageId }) => {
     const [heightMapData, setHeightMapData] = useState<string | null>(null)
     const { heightmapSize, smoothing, contrast, invert } = useControls('Height Map', {
         heightmapSize: { value: -0.75, min: -5, max: 5 },
-        smoothing: { value: 0, min: -50, max: 50, step: 0.1 },
+        smoothing: { value: 0, min: -10, max: 50, step: 0.1 },
         contrast: { value: 0, min: -200, max: 200, step: 1 },
         invert: { value: false }
     })

@@ -1,4 +1,4 @@
-import { OrbitControls, useHelper, TransformControls } from '@react-three/drei'
+import { OrbitControls, useHelper, TransformControls, Environment, ContactShadows } from '@react-three/drei'
 import { ArtMesh } from './ArtMesh'
 import { useRef } from 'react'
 import * as THREE from 'three' // For DirectionalLightHelper
@@ -24,7 +24,7 @@ export const Experience: React.FC<ExperienceProps> = ({ imageId }) => {
     const { lightPosition, lightIntensity, ambientIntensity, debugLights, followCamera } = useControls('Lighting', {
         lightPosition: { value: [0, 0, 10], step: 1 },
         lightIntensity: { value: 1, min: 0, max: 20 },
-        ambientIntensity: { value: 1, min: 0, max: 5 },
+        ambientIntensity: { value: 0.5, min: 0, max: 5 },
         followCamera: true,
         debugLights: false
     })
@@ -52,6 +52,8 @@ export const Experience: React.FC<ExperienceProps> = ({ imageId }) => {
                 autoRotate={autoRotate}
                 autoRotateSpeed={autoRotateSpeed} 
                 makeDefault={!debugLights} // Disable orbit controls when debugging lights to avoid conflict
+                minDistance={2}
+                maxDistance={20}
             />
 
             <ambientLight intensity={ambientIntensity} />
@@ -63,12 +65,17 @@ export const Experience: React.FC<ExperienceProps> = ({ imageId }) => {
             />
             {debugLights && <TransformControls object={light} />}
 
+            <Environment preset="studio" />
+
             <ArtMesh imageId={imageId} />
             
-            <mesh position-y={-10} rotation-x={-Math.PI / 2} >
-                <planeGeometry args={[100, 100]} />
-                <meshStandardMaterial color="#444444" />
-            </mesh>
+            <ContactShadows 
+                position-y={-2} 
+                opacity={0.4} 
+                scale={40} 
+                blur={2.5} 
+                far={4.5} 
+            />
         </>
     )
 }
